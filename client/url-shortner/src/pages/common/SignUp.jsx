@@ -18,7 +18,7 @@ const SignupForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex =/^[A-Za-z0-9._%+-]+@gmail\.com$/;
     return emailRegex.test(email);
   };
 

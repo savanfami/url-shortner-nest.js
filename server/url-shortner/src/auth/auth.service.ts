@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common";
 import { CreateUrlDto, LoginDto, RegisterDto } from "./dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { User } from "./schema/user.schema";
@@ -19,7 +19,6 @@ export class AuthService {
     async signup(dto: RegisterDto) {
         const { email, password, username } = dto
         const emailExist = await this.UserModel.findOne({ email })
-
         if (emailExist) {
             throw new ConflictException('email already in use')
         }
@@ -35,22 +34,31 @@ export class AuthService {
     }
 
     async signin(loginAuthDto: LoginDto) {
-        const { email, password } = loginAuthDto;
-        const data = await this.UserModel.findOne({ email });
+        try {
+            const { email, password } = loginAuthDto;
 
-        if (!data) {
-            return new UnauthorizedException('Email is not valid');
-        }
 
-        if (!(await bcrypt.compare(password, data.password))) {
-            return new UnauthorizedException('Password is not match');
-        }
+            const user = await this.UserModel.findOne({ email: email });
+            if (!user) {
+                throw new UnauthorizedException('Invalid email or password');
+            }
+            const isPasswordValid = await bcrypt.compare(password, user.password);
 
-        const payload = { userId: data._id }
-        const token = this.jwtService.sign(payload)
-        return {
-            access_token: token,
-            message: 'login successfully'
+            if (!isPasswordValid) {``
+                throw new UnauthorizedException('Invalid email or password');
+            }
+            const payload = { userId: user._id };
+            const token = this.jwtService.sign(payload);
+
+            return {
+                access_token: token,
+                message: 'Login successful'
+            };
+        } catch (error) {
+            if (error instanceof UnauthorizedException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('An error occurred during sign in');
         }
     }
 

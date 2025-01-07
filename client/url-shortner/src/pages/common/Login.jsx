@@ -20,9 +20,10 @@ const LoginForm = () => {
     const newErrors = {};
     
     if (!formData.email.trim()) {
-      newErrors.email = 'email is required';
-    } 
-    
+      newErrors.email = 'Email is required';
+    } else if (!/^[A-Za-z0-9._%+-]+@gmail\.com$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
