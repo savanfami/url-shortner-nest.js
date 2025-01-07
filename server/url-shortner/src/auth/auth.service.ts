@@ -36,20 +36,17 @@ export class AuthService {
     async signin(loginAuthDto: LoginDto) {
         try {
             const { email, password } = loginAuthDto;
-
-
             const user = await this.UserModel.findOne({ email: email });
             if (!user) {
-                throw new UnauthorizedException('Invalid email or password');
+                throw new UnauthorizedException('User not found');
             }
             const isPasswordValid = await bcrypt.compare(password, user.password);
 
             if (!isPasswordValid) {``
-                throw new UnauthorizedException('Invalid email or password');
+                throw new UnauthorizedException('Incorrect  password');
             }
             const payload = { userId: user._id };
             const token = this.jwtService.sign(payload);
-
             return {
                 access_token: token,
                 message: 'Login successful'

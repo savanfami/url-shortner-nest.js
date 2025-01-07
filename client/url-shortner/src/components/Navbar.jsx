@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../redux/reducer/userSlice';
+import toast from 'react-hot-toast';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    toast.success('logout successfull')
     navigate('/login');
   };
 

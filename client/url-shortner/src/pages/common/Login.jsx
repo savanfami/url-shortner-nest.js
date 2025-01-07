@@ -5,6 +5,7 @@ import { signIn } from '../../api/userAuth';
 import {useDispatch} from 'react-redux'
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../redux/reducer/userSlice';
+import toast from 'react-hot-toast';
 const LoginForm = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -36,7 +37,6 @@ const LoginForm = () => {
     e.preventDefault();
     console.log(formData)
     setIsSubmitting(true);
-    
     if (validateForm()) {
       try {
         const res=await signIn(formData)
@@ -44,7 +44,11 @@ const LoginForm = () => {
         dispatch(login(res.data.access_token))
         navigate('/')
       } catch (error) {
-        console.log(error)
+        if(error.response&&error.response.status===401){
+          toast.error(error.response.data.message)
+        }else{
+          toast.error('something went wrong please try again')
+        }
       }
     }
     setIsSubmitting(false);
@@ -157,9 +161,9 @@ const LoginForm = () => {
             <div className="text-center mt-4">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
-             <Link to='/signup'> <p className="font-medium text-blue-600 hover:text-blue-500">
+             <Link to='/signup'> <span className="font-medium text-blue-600 hover:text-blue-500">
                   Sign up
-                </p>
+                </span>
                 </Link>  
               </p>
             </div>
