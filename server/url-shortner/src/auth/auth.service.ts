@@ -63,7 +63,7 @@ export class AuthService {
         let exedUrl = await this.UrlModel.findOne({ longUrl: createUrlDto.url })
         if (exedUrl) {
             return {
-                shortUrl: `http://localhost:5173/shortUrl/${exedUrl.shortUrl}`
+                shortUrl: `https://url-shortner-nest-js.vercel.app/${exedUrl.shortUrl}`
             }
         }
 
@@ -73,7 +73,7 @@ export class AuthService {
             shortUrl: shortId
         })
         return {
-            shortUrl: `http://localhost:5173/shortUrl/${shortId}`
+            shortUrl: `https://url-shortner-nest-js.vercel.app/${shortId}`
         }
     }
 
