@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { RegisterDto, LoginDto, CreateUrlDto } from './dto'
 import { AuthGuard } from "./auth.guard";
@@ -9,7 +9,7 @@ export class AuthController {
   constructor(private authService: AuthService) { }
 
   @Post('signup')
-  async signup(@Body() dto: RegisterDto, @Res({ passthrough: true }) response: Response) {
+  async signup(@Body() dto: RegisterDto) {
     return await this.authService.signup(dto)
   }
 
@@ -18,7 +18,7 @@ export class AuthController {
     return await this.authService.signin(LoginDto);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post("createUrl")
   async createUrl(@Body() createUrlDto: CreateUrlDto) {
     return await this.authService.createUrl(createUrlDto)
@@ -29,5 +29,4 @@ export class AuthController {
   async getUrlData(@Param('id') id: string): Promise<any> {
     return await this.authService.getUrlData(id)
   }
-
 }

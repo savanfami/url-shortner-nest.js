@@ -1,24 +1,40 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { signup } from '../../api/userAuth';
+import {useNavigate} from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
+    email: '',
     password: '',
     confirmPassword: ''
   });
+  const navigate=useNavigate()
   
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    } else if (formData.name.length < 3) {
-      newErrors.name = 'Name must be at least 3 characters';
+    if (!formData.username.trim()) {
+      newErrors.username = 'Name is required';
+    } else if (formData.username.length < 3) {
+      newErrors.username = 'Name must be at least 3 characters';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
     }
     
     if (!formData.password) {
@@ -37,11 +53,21 @@ const SignupForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData,'formdataaa')
     setIsSubmitting(true);
-    
+    const data={
+      username:formData.username,
+      password:formData.password,
+      email:formData.email
+    }
     if (validateForm()) {
-    //   await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Form submitted:', formData);
+      try {
+        const response=await signup(data)
+        console.log(response)
+        navigate('/login')
+      } catch (error) {
+        console.error(error,'errorrororor')
+      }
     }
     
     setIsSubmitting(false);
@@ -62,7 +88,7 @@ const SignupForm = () => {
   };
 
   return (
-    <div className="min-h-screen  flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-gray-900">
@@ -82,17 +108,40 @@ const SignupForm = () => {
               <div className="mt-1">
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="username"
+                  value={formData.username}
                   onChange={handleChange}
                   className={`appearance-none block w-full px-3 py-2 border ${
-                    errors.name ? 'border-red-300' : 'border-gray-300'
+                    errors.username ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="Enter your name"
                 />
-                {errors.name && (
+                {errors.username && (
                   <p className="mt-2 text-sm text-red-600">
-                    {errors.name}
+                    {errors.username}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <div className="mt-1">
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`appearance-none block w-full px-3 py-2 border ${
+                    errors.email ? 'border-red-300' : 'border-gray-300'
+                  } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  placeholder="Enter your email"
+                />
+                {errors.email && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.email}
                   </p>
                 )}
               </div>
@@ -172,6 +221,7 @@ const SignupForm = () => {
               )}
             </button>
           </form>
+          <p className='mt-2'>already have account? <Link to='/login'><span className='text-blue-600 font-semibold'>Login</span></Link> </p>
         </div>
       </div>
     </div>

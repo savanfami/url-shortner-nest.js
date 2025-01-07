@@ -1,84 +1,27 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { fetchUserData, Logout, Register,login } from "../action/userAction";
+import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
-  loggedIn: false,
-  err: null,
-  user: null,
-  loading: false,
-};
+  const initialState= {
+     userAuthStatus:localStorage.getItem("userToken")?true:false 
+  }
 
-const UserSlice = createSlice({
-  name: "user",
+export const userAuthSlice = createSlice({
+  name: 'url',
   initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder.addCase(Register.pending, (state) => {
-      state.loggedIn = false;
-      state.loading = true;
-      state.err = null;
-      state.user = null;
-    });
-    builder.addCase(Register.fulfilled, (state, { payload }) => {
-      state.loggedIn = true;
-      state.loading = false;
-      state.err = null;
-      state.user = payload;
-    });
-    builder.addCase(Register.rejected, (state, { payload }) => {
-      state.loggedIn = false;
-      state.loading = false;
-      state.err = payload;
-      state.user = null;
-    });
-    builder.addCase(Logout.pending, (state) => {
-      state.loading = true;
-    });
-    builder.addCase(Logout.fulfilled, (state) => {
-      state.loading = false;
-      state.loggedIn = false;
-      state.user = null;
-      state.err = null;
-    });
-    builder.addCase(Logout.rejected, (state) => {
-      state.loading = false;
-      state.err = payload;
-    });
-    builder.addCase(fetchUserData.pending, (state) => {
-      state.loading = true;
-      state.err = null;
-    });
-    builder.addCase(fetchUserData.fulfilled, (state, { payload }) => {
-      state.loading = false;
-      state.loggedIn = true;
-      state.user = payload;
-      state.err = null;
-    });
-    builder.addCase(fetchUserData.rejected, (state, { payload }) => {
-      state.loading = false;
-      state.err = payload;
-    });
-    builder.addCase(login.pending, (state) => {
-      state.loading = true;
-      state.err = null;
-      state.user = null;
-      state.loggedIn = false;
-    });
-    builder.addCase(login.fulfilled, (state, { payload }) => {
-      state.loading = false;
-      state.err = null;
-      state.user = payload;
-      state.loggedIn = true;
-    });
-    builder.addCase(login.rejected, (state, { payload }) => {
-      state.loading = false;
-      state.err = payload;
-      state.user = null;
-      state.loggedIn = false;
-    });
+
+  reducers:{
+
+   login:(state,action)=>{
+       state.userAuthStatus=true
+       localStorage.setItem("userToken",action.payload)   
+   },
+
+   logout:(state)=>{
+       state.userAuthStatus=false
+       localStorage.removeItem("userToken");
+   }
+
   },
 });
 
-export const {} = UserSlice.actions;
-
-export default UserSlice.reducer;
+export const {login,logout} = userAuthSlice.actions;
+export default userAuthSlice.reducer;

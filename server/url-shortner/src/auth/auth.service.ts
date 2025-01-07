@@ -29,10 +29,7 @@ export class AuthService {
             email,
             password: hashPassword
         })
-        const payload = { userId: user._id }
-        const token = this.jwtService.sign(payload)
         return {
-            token,
             message: 'user created successfully'
         }
     }
@@ -52,19 +49,16 @@ export class AuthService {
         const payload = { userId: data._id }
         const token = this.jwtService.sign(payload)
         return {
-            access_token:token,
+            access_token: token,
             message: 'login successfully'
         }
     }
 
     async createUrl(createUrlDto: CreateUrlDto) {
-        console.log(createUrlDto);
-
-        const { url } = createUrlDto
         let exedUrl = await this.UrlModel.findOne({ longUrl: createUrlDto.url })
         if (exedUrl) {
             return {
-                shortUrl: `http://localhost:5173/shortUr/${exedUrl.shortUrl}`
+                shortUrl: `http://localhost:5173/shortUrl/${exedUrl.shortUrl}`
             }
         }
 
@@ -81,14 +75,12 @@ export class AuthService {
     async getUrlData(id: string) {
         try {
             const Url = await this.UrlModel.findOne({ shortUrl: id })
-
             if (!Url) {
                 return new BadRequestException('This Id is not valid');
             }
-
             return Url.longUrl
         } catch (error) {
-
+            console.log(error)
         }
     }
 

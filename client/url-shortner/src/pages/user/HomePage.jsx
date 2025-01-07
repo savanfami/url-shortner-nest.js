@@ -1,28 +1,40 @@
 import React, { useState } from 'react';
+import { CreateUrl } from '../../api/userAuth';
 
 const URLShortener = () => {
   const [url, setUrl] = useState('');
-  const [customAlias, setCustomAlias] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [validationError, setValidationError] = useState('');
+
+  const urlRegex = /^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?)$/;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setResult(null);
+    setValidationError('');
+
+    // Validate URL before sending request
+    if (!urlRegex.test(url)) {
+      setValidationError('Please enter a valid URL.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const shortUrl = `short.url/${customAlias || Math.random().toString(36).substr(2, 6)}`;
-      setResult({
-        originalUrl: url,
-        shortUrl,
-        createdAt: new Date().toISOString()
-      });
+      const response = await CreateUrl(url);
+      if (response && response.data.shortUrl) {
+        setResult({
+          shortUrl: response.data.shortUrl,
+        });
+      } else {
+        setError('Failed to generate short URL. Please try again.');
+      }
     } catch (err) {
+      console.error('Error shortening URL:', err);
       setError('Failed to shorten URL. Please try again.');
     } finally {
       setIsLoading(false);
@@ -55,19 +67,9 @@ const URLShortener = () => {
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="https://example.com/very-long-url"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Custom Alias (Optional)
-              </label>
-              <input
-                type="text"
-                value={customAlias}
-                onChange={(e) => setCustomAlias(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="my-custom-url"
-              />
+              {validationError && (
+                <p className="mt-1 text-sm text-red-600">{validationError}</p>
+              )}
             </div>
 
             <button

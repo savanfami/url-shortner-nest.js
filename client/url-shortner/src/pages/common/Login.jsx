@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-
+import { Link } from 'react-router-dom';
+import { signIn } from '../../api/userAuth';
+import {useDispatch} from 'react-redux'
+import { useNavigate } from 'react-router-dom';
+import { login } from '../../redux/reducer/userSlice';
 const LoginForm = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    email: '',
     password: ''
   });
-  
+  const navigate=useNavigate()
+  const dispatch=useDispatch()
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -14,8 +19,8 @@ const LoginForm = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.name.trim()) {
-      newErrors.name = 'name is required';
+    if (!formData.email.trim()) {
+      newErrors.email = 'email is required';
     } 
     
     if (!formData.password) {
@@ -28,14 +33,19 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData)
     setIsSubmitting(true);
     
     if (validateForm()) {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Form submitted:', formData);
+      try {
+        const res=await signIn(formData)
+        console.log(res,'rspnose')
+        dispatch(login(res.data.access_token))
+        navigate('/')
+      } catch (error) {
+        console.log(error)
+      }
     }
-    
     setIsSubmitting(false);
   };
 
@@ -45,7 +55,6 @@ const LoginForm = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -76,16 +85,16 @@ const LoginForm = () => {
                 <input
                   type="email"
                   name="email"
-                  value={formData.name}
+                  value={formData.email}
                   onChange={handleChange}
                   className={`appearance-none block w-full px-3 py-2 border ${
-                    errors.name ? 'border-red-300' : 'border-gray-300'
+                    errors.email ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="Enter your name"
                 />
-                {errors.name && (
+                {errors.email && (
                   <p className="mt-2 text-sm text-red-600">
-                    {errors.name}
+                    {errors.email}
                   </p>
                 )}
               </div>
@@ -147,9 +156,10 @@ const LoginForm = () => {
             <div className="text-center mt-4">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
-                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+             <Link to='/signup'> <p className="font-medium text-blue-600 hover:text-blue-500">
                   Sign up
-                </a>
+                </p>
+                </Link>  
               </p>
             </div>
           </form>
