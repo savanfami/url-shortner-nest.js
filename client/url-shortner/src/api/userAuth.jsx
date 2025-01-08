@@ -14,6 +14,6 @@ export const CreateUrl=async(url)=>{
     return await axiosInstance.post("/auth/createUrl",{url},config)
 }
 
-export const getUrl=async(id)=>{
+export const getUrl=async(id)=>{    
     return await axiosInstance.get(`/auth/${id}`,config)
 }
